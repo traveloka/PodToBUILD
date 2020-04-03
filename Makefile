@@ -1,7 +1,12 @@
 .PHONY: build 
-build: CONFIG= debug
-build: SWIFT_OPTS= --configuration $(CONFIG)
-build: build-impl-spm
+build:
+	@tools/bazelwrapper build \
+		--disk_cache=$(HOME)/Library/Caches/Bazel \
+		--spawn_strategy=standalone \
+		:RepoTools :Compiler
+	@ditto bazel-bin/RepoTools bin/RepoTools
+	@ditto bazel-bin/Compiler bin/Compiler
+
 
 # There are a few issues with SwiftPackageManager and incremental builds
 clean:
@@ -39,7 +44,7 @@ test-impl:
 	@grep SWIFT_TEST_STAT=0 .build/last_build.log || exit 1
 
 # Update the gold master directory
-goldmaster: release
+goldmaster: build
 	@./MakeGoldMaster.sh
 
 unit-test: SWIFT_TEST_OPTS= --filter PodToBUILDTests
@@ -116,7 +121,7 @@ TESTED_BAZEL_VERSION=0.25.2
 github_release:
 	@which hub || (echo "this command relies on github cli" && exit 1)
 	@git checkout master
-	@git pull --rebase origin master
+	#@git pull --rebase  origin master
 	@echo "creating release: $(TESTED_BAZEL_VERSION)-($(shell git rev-parse --short HEAD)"
 	$(MAKE) release
 	$(MAKE) archive
