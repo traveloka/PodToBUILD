@@ -115,7 +115,6 @@ def pch_with_name_hint(hint, sources):
 def _make_module_map(pod_name, module_name, deps, is_system):
     # Up some dirs to the compilation root
     # bazel-out/ios_x86_64-fastbuild/genfiles/external/__Pod__
-    relative_path = "../../../../../../"
 
     system_tag = " [system] "
     template = "module " + module_name + (system_tag if is_system else "" ) + " {\n"
@@ -125,7 +124,7 @@ def _make_module_map(pod_name, module_name, deps, is_system):
             if input_file.path.endswith(".hmap"):
                 continue
             hdr = input_file
-            template += "    header \"%s%s\"\n" % (relative_path, hdr.path)
+            template += "    header \"%s\"\n" % (hdr.path)
     template += "}\n"
     return template
 
